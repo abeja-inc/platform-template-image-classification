@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Intellij
+.idea/
+
+# Platform
+*.zip
+*.tar
+logs/

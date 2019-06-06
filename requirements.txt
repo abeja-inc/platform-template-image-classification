@@ -1,0 +1,5 @@
+h5py
+pillow
+tensorflow==1.12.2
+# tensorflow-gpu==1.12.2
+keras==2.2.4
