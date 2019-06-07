@@ -17,3 +17,6 @@ USE_CACHE = bool(os.environ.get('USE_CACHE', 'True').lower() == 'true')
 USE_ON_MEMORY = bool(os.environ.get('USE_ON_MEMORY', 'True').lower() == 'true')
 if USE_ON_MEMORY:
     USE_CACHE = True
+NUM_DATA_LOAD_THREAD = int(os.environ.get('NUM_DATA_LOAD_THREAD', '1'))
+if NUM_DATA_LOAD_THREAD > BATCH_SIZE:
+    NUM_DATA_LOAD_THREAD = BATCH_SIZE

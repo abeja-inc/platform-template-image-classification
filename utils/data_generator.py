@@ -2,6 +2,7 @@
 
 
 import io
+import threading
 import math
 from typing import Dict, List
 
@@ -14,8 +15,10 @@ from abeja.datasets import Client
 from preprocessor import preprocessor
 from .dataset_item_id import DatasetItemId
 from .parameters import (
-    BATCH_SIZE, IMG_ROWS, IMG_COLS, NB_CHANNELS, USE_CACHE, USE_ON_MEMORY
+    BATCH_SIZE, IMG_ROWS, IMG_COLS, NB_CHANNELS, USE_CACHE, USE_ON_MEMORY, NUM_DATA_LOAD_THREAD
 )
+
+THREAD_INDICES = [int(i*BATCH_SIZE/NUM_DATA_LOAD_THREAD) for i in range(NUM_DATA_LOAD_THREAD)] + [BATCH_SIZE]
 
 
 class DataGenerator(Sequence):
@@ -35,11 +38,8 @@ class DataGenerator(Sequence):
         self.dataset_item_count = len(dataset_item_ids)
         self.num_batches_per_epoch = math.ceil(self.dataset_item_count / BATCH_SIZE)
 
-    def __getitem__(self, idx):
-        start_pos = BATCH_SIZE * idx
-        imgs = np.empty((BATCH_SIZE, IMG_ROWS, IMG_COLS, NB_CHANNELS), dtype=np.float32)
-        labels = [0]*BATCH_SIZE
-        for i in range(BATCH_SIZE):
+    def __data_load(self, imgs, labels, start_pos: int, from_i: int, to_i: int):
+        for i in range(from_i, to_i, 1):
             id_idx = (start_pos + i) % self.dataset_item_count
             dataset_item_id = self.dataset_item_ids[id_idx]
             if USE_ON_MEMORY:
@@ -58,7 +58,24 @@ class DataGenerator(Sequence):
                 img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
                 img = preprocessor(img)
             imgs[i, :] = img
-            labels[i]=self.id2index[label_id]
+            labels[i] = self.id2index[label_id]
+
+    def __getitem__(self, idx):
+        start_pos = BATCH_SIZE * idx
+        imgs = np.empty((BATCH_SIZE, IMG_ROWS, IMG_COLS, NB_CHANNELS), dtype=np.float32)
+        labels = [0]*BATCH_SIZE
+
+        threadlist = list()
+        for i in range(NUM_DATA_LOAD_THREAD):
+            thread = threading.Thread(
+                target=self.__data_load,
+                args=(imgs, labels, start_pos, THREAD_INDICES[i], THREAD_INDICES[i+1]))
+            threadlist.append(thread)
+        for thread in threadlist:
+            thread.start()
+        for thread in threadlist:
+            thread.join()
+
         labels = keras.utils.to_categorical(labels, num_classes=self.num_classes)
         return imgs, labels
 
