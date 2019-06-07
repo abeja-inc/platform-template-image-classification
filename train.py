@@ -14,7 +14,7 @@ from keras.callbacks import TensorBoard, EarlyStopping
 from abeja.contrib.keras.callbacks import Statistics
 
 from utils import (
-    set_categories, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS,
+    set_categories, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS, EARLY_STOPPING_PATIENCE,
     RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, DataGenerator, get_dataset_item_ids
 )
 
@@ -76,7 +76,7 @@ def handler(context):
     tensorboard = TensorBoard(log_dir=log_path, histogram_freq=0,
                               write_graph=True, write_images=False)
     statistics = Statistics()
-    early = EarlyStopping(monitor='val_acc', min_delta=0, patience=10, verbose=1, mode='auto')
+    early = EarlyStopping(monitor='val_acc', min_delta=0, patience=EARLY_STOPPING_PATIENCE, verbose=1, mode='auto')
     # Do you want to add `checkpoint` to callback as well?
     model.compile(loss=keras.losses.categorical_crossentropy,
                   optimizer=Adam(),
