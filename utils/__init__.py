@@ -1,12 +1,17 @@
 # coding: utf-8
 
 
+import io
 from typing import Tuple, Dict, List
 
+from keras.preprocessing.image import load_img
 from abeja.datasets import Client
 
+from preprocessor import preprocessor
 from .parameters import (
-    BATCH_SIZE, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS, RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, USE_CACHE
+    BATCH_SIZE, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS,
+    RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, USE_CACHE,
+    USE_ON_MEMORY
 )
 from .dataset_item_id import DatasetItemId
 from .data_generator import DataGenerator
@@ -48,8 +53,17 @@ def get_dataset_item_ids(dataset_ids: List[str]) -> List[DatasetItemId]:
     dataset_item_ids = list()
     for dataset_id in dataset_ids:
         dataset = client.get_dataset(dataset_id)
-        for item in dataset.dataset_items.list():
+        for item in dataset.dataset_items.list(prefetch=USE_ON_MEMORY):
             dataset_item_id = DatasetItemId(dataset_id, item.dataset_item_id)
             dataset_item_ids.append(dataset_item_id)
+            if USE_ON_MEMORY:
+                source_data = item.source_data[0]
+                file_content = source_data.get_content(cache=USE_CACHE)
+                file_like_object = io.BytesIO(file_content)
+                img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
+                img = preprocessor(img)
+                dataset_item_id.data = img
+                label_id = item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
+                dataset_item_id.label_id = label_id
         break  # FIXME: Allow multiple datasets.
     return dataset_item_ids
