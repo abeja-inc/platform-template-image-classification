@@ -43,7 +43,13 @@ def set_categories(dataset_ids: list) -> Tuple[Dict[str, int], Dict[int, str]]:
     return id2index, index2label
 
 
-def get_dataset_item_ids(dataset_ids: List[str]) -> List[Tuple[str, str]]:
+class DatasetItemId:
+    def __init__(self, dataset_id: str, dataset_item_id: str):
+        self.dataset_id = dataset_id
+        self.dataset_item_id = dataset_item_id
+
+
+def get_dataset_item_ids(dataset_ids: List[str]) -> List[DatasetItemId]:
     """
     FIXME: DEPRECATED https://github.com/abeja-inc/platform-planning/issues/2171
     Get dataset item ids.
@@ -55,7 +61,7 @@ def get_dataset_item_ids(dataset_ids: List[str]) -> List[Tuple[str, str]]:
     for dataset_id in dataset_ids:
         dataset = client.get_dataset(dataset_id)
         for item in dataset.dataset_items.list():
-            dataset_item_ids.append((dataset_id, item.dataset_item_id))
+            dataset_item_ids.append(DatasetItemId(dataset_id, item.dataset_item_id))
         break  # FIXME: Allow multiple datasets.
     return dataset_item_ids
 
@@ -66,10 +72,10 @@ class DataGenerator(Sequence):
     FIXME: Allow multiple datasets.
     """
 
-    def __init__(self, dataset_item_ids: List[Tuple[str, str]], id2index: Dict[str, int]):
+    def __init__(self, dataset_item_ids: List[DatasetItemId], id2index: Dict[str, int]):
         self.client = Client()
         self.dataset_item_ids = dataset_item_ids
-        self.dataset = self.client.get_dataset(self.dataset_item_ids[0][0])
+        self.dataset = self.client.get_dataset(self.dataset_item_ids[0].dataset_id)
         self.id2index = id2index
         self.num_classes = len(id2index)
 
@@ -83,10 +89,11 @@ class DataGenerator(Sequence):
         labels = [0]*BATCH_SIZE
         for i in range(BATCH_SIZE):
             id_idx = (start_pos + i) % self.dataset_item_count
-            dataset_id, item_id = self.dataset_item_ids[id_idx]
+            dataset_id = self.dataset_item_ids[id_idx].dataset_id
+            dataset_item_id = self.dataset_item_ids[id_idx].dataset_item_id
             if self.dataset.dataset_id != dataset_id:
                 self.dataset = self.client.get_dataset(dataset_id)
-            dataset_item = self.dataset.dataset_items.get(item_id)
+            dataset_item = self.dataset.dataset_items.get(dataset_item_id)
             # FIXME: Allow category selection
             label = self.id2index[dataset_item.attributes['classification'][0]['label_id']]
             source_data = dataset_item.source_data[0]
