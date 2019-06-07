@@ -1,11 +1,10 @@
 import os
 
-from keras.preprocessing import image
 from keras.models import load_model
-from keras.applications.imagenet_utils import preprocess_input
 import numpy as np
 from PIL import Image
 
+from preprocessor import preprocessor
 from utils import set_categories, IMG_ROWS, IMG_COLS
 
 
@@ -23,9 +22,8 @@ def handler(_iter, ctx):
         img = Image.fromarray(img)
         img = img.resize((IMG_ROWS, IMG_COLS))
 
-        x = image.img_to_array(img)
+        x = preprocessor(img)
         x = np.expand_dims(x, axis=0)
-        x = preprocess_input(x, mode='tf')
 
         result = model.predict(x)[0]
         sorted_result = decode_predictions(result.tolist())
