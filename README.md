@@ -25,7 +25,8 @@ This template uses transfer-learning from VGG16 ImageNet. Making it easy to try 
 | IMG_COLS | int | Image cols. Automatically resize to this size. Default `128`. |
 | NB_CHANNELS | int | Image channels. If grayscale, then `1`. If color, then `3`. Default `3`. |
 | RANDOM_SEED | int | Random seed. Use it for a data shuffling. Default `42`. |
-| USE_CACHE | bool | Image cache. If you use a big dataset, set it to `false`. Default `true` |
+| USE_ON_MEMORY | bool | Load data on memory. If you use a big dataset, set it to `false`. Default `true` |
+| USE_CACHE | bool | Image cache. If you use a big dataset, set it to `false`. If `USE_ON_MEMORY=true`, then `USE_CACHE=true` automatically. Default `true` |
 
 
 ## Run on local
