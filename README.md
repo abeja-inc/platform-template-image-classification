@@ -21,11 +21,14 @@ This template uses transfer-learning from VGG16 ImageNet. Making it easy to try 
 | EPOCHS | int | Epoch number. This template applies "Early stopping". Default `50`. |
 | DROPOUT | float | Dropout of the last layer (Transfer learning). Need to be from `0.0` to `1.0`. Default `0.5`. |
 | EARLY_STOPPING_TEST_SIZE | float | Test data size for "Early stopping". Need to be from `0.0` to `1.0`. Default `0.2`. |
+| EARLY_STOPPING_PATIENCE | int | Number of patience for "Early stopping". Default `5`. |
 | IMG_ROWS | int | Image rows. Automatically resize to this size. Default `128`. |
 | IMG_COLS | int | Image cols. Automatically resize to this size. Default `128`. |
 | NB_CHANNELS | int | Image channels. If grayscale, then `1`. If color, then `3`. Default `3`. |
 | RANDOM_SEED | int | Random seed. Use it for a data shuffling. Default `42`. |
-| USE_CACHE | bool | Image cache. If you use a big dataset, set it to `false`. Default `true` |
+| USE_ON_MEMORY | bool | Load data on memory. If you use a big dataset, set it to `false`. Default `true` |
+| USE_CACHE | bool | Image cache. If you use a big dataset, set it to `false`. If `USE_ON_MEMORY=true`, then `USE_CACHE=true` automatically. Default `true` |
+| NUM_DATA_LOAD_THREAD | int | Number of thread image loads. MUST NOT over `BATCH_SIZE`. Default `1` |
 
 
 ## Run on local

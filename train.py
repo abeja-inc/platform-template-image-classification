@@ -14,7 +14,7 @@ from keras.callbacks import TensorBoard, EarlyStopping
 from abeja.contrib.keras.callbacks import Statistics
 
 from utils import (
-    set_categories, EPOCHS, IMG_ROWS, IMG_COLS,
+    set_categories, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS, EARLY_STOPPING_PATIENCE,
     RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, DataGenerator, get_dataset_item_ids
 )
 
@@ -61,10 +61,12 @@ def handler(context):
     dataset_item_ids = get_dataset_item_ids(dataset_alias.values())
     random.shuffle(dataset_item_ids)
 
-    train_size = int(len(dataset_item_ids) * (1.0 - EARLY_STOPPING_TEST_SIZE))
-    train_ids, test_ids = dataset_item_ids[:train_size], dataset_item_ids[train_size:]
-    nb_channels = 3
-    input_shape = (IMG_ROWS, IMG_COLS, nb_channels)
+    test_size = int(len(dataset_item_ids) * EARLY_STOPPING_TEST_SIZE)
+    if test_size:
+        train_ids, test_ids = dataset_item_ids[test_size:], dataset_item_ids[:test_size]
+    else:
+        raise Exception("Dataset size is too small. Please add more dataset.")
+    input_shape = (IMG_ROWS, IMG_COLS, NB_CHANNELS)
     print('num classes:', num_classes)
     print('input shape:', input_shape)
     print(len(train_ids), 'train samples')
@@ -74,7 +76,7 @@ def handler(context):
     tensorboard = TensorBoard(log_dir=log_path, histogram_freq=0,
                               write_graph=True, write_images=False)
     statistics = Statistics()
-    early = EarlyStopping(monitor='val_acc', min_delta=0, patience=10, verbose=1, mode='auto')
+    early = EarlyStopping(monitor='val_acc', min_delta=0, patience=EARLY_STOPPING_PATIENCE, verbose=1, mode='auto')
     # Do you want to add `checkpoint` to callback as well?
     model.compile(loss=keras.losses.categorical_crossentropy,
                   optimizer=Adam(),
