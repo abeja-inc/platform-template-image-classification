@@ -15,6 +15,7 @@ from abeja.contrib.keras.callbacks import Statistics
 
 from utils import (
     set_categories, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS, EARLY_STOPPING_PATIENCE,
+    LEARNING_RATE, ADAM_BETA_1, ADAM_BETA_2, ADAM_EPSILON, ADAM_DECAY,
     RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, DataGenerator, get_dataset_item_ids,
     DROPOUT_SEED
 )
@@ -80,7 +81,8 @@ def handler(context):
     early = EarlyStopping(monitor='val_acc', min_delta=0, patience=EARLY_STOPPING_PATIENCE, verbose=1, mode='auto')
     # Do you want to add `checkpoint` to callback as well?
     model.compile(loss=keras.losses.categorical_crossentropy,
-                  optimizer=Adam(),
+                  optimizer=Adam(lr=LEARNING_RATE, beta_1=ADAM_BETA_1, beta_2=ADAM_BETA_2,
+                                 epsilon=ADAM_EPSILON, decay=ADAM_DECAY),
                   metrics=['accuracy'])
 
     # fit_generator
