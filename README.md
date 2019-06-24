@@ -20,6 +20,7 @@ This template uses transfer-learning from VGG16 ImageNet. Making it easy to try 
 | BATCH_SIZE | int | Batch size. Default `32`. |
 | EPOCHS | int | Epoch number. This template applies "Early stopping". Default `50`. |
 | DROPOUT | float | Dropout of the last layer (Transfer learning). Need to be from `0.0` to `1.0`. Default `0.5`. |
+| DROPOUT_SEED | int | Random seed for Dropout. Default `42`. |
 | EARLY_STOPPING_TEST_SIZE | float | Test data size for "Early stopping". Need to be from `0.0` to `1.0`. Default `0.2`. |
 | EARLY_STOPPING_PATIENCE | int | Number of patience for "Early stopping". Default `5`. |
 | IMG_ROWS | int | Image rows. Automatically resize to this size. Default `128`. |

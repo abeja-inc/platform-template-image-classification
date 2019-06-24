@@ -8,6 +8,7 @@ import os
 BATCH_SIZE = int(os.environ.get('BATCH_SIZE', '32'))
 EPOCHS = int(os.environ.get('EPOCHS', '50'))
 DROPOUT = float(os.environ.get('DROPOUT', '0.5'))
+DROPOUT_SEED = int(os.environ.get('DROPOUT_SEED', '42'))
 EARLY_STOPPING_TEST_SIZE = float(os.environ.get('EARLY_STOPPING_TEST_SIZE', '0.2'))
 EARLY_STOPPING_PATIENCE = int(os.environ.get('EARLY_STOPPING_PATIENCE', '5'))
 IMG_ROWS = int(os.environ.get('IMG_ROWS', '128'))
