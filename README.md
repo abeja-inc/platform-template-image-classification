@@ -19,6 +19,11 @@ This template uses transfer-learning from VGG16 ImageNet. Making it easy to try 
 | --- | --- | --- |
 | BATCH_SIZE | int | Batch size. Default `32`. |
 | EPOCHS | int | Epoch number. This template applies "Early stopping". Default `50`. |
+| LEARNING_RATE | float | Learning rate. Need to be from `0.0` to `1.0`. Default `0.001`. |
+| ADAM_BETA_1 | float | Adam parameter "beta_1". Need to be from `0.0` to `1.0`. Default `0.9`. |
+| ADAM_BETA_2 | float | Adam parameter "beta_2". Need to be from `0.0` to `1.0`. Default `0.999`. |
+| ADAM_EPSILON | float | Adam parameter "epsilon". Need to be from `0.0`. Default `None` = `K.epsilon()`. |
+| ADAM_DECAY | float | Adam parameter "decay". Need to be from `0.0`. Default `0.0`. |
 | DROPOUT | float | Dropout of the last layer (Transfer learning). Need to be from `0.0` to `1.0`. Default `0.5`. |
 | DROPOUT_SEED | int | Random seed for Dropout. Default `42`. |
 | EARLY_STOPPING_TEST_SIZE | float | Test data size for "Early stopping". Need to be from `0.0` to `1.0`. Default `0.2`. |
