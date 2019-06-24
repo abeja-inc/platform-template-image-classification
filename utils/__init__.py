@@ -11,7 +11,8 @@ from preprocessor import preprocessor
 from .parameters import (
     BATCH_SIZE, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS,
     RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, USE_CACHE,
-    USE_ON_MEMORY, NUM_DATA_LOAD_THREAD, EARLY_STOPPING_PATIENCE
+    USE_ON_MEMORY, NUM_DATA_LOAD_THREAD, EARLY_STOPPING_PATIENCE,
+    DROPOUT_SEED
 )
 from .dataset_item_id import DatasetItemId
 from .data_generator import DataGenerator

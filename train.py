@@ -15,7 +15,8 @@ from abeja.contrib.keras.callbacks import Statistics
 
 from utils import (
     set_categories, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS, EARLY_STOPPING_PATIENCE,
-    RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, DataGenerator, get_dataset_item_ids
+    RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, DataGenerator, get_dataset_item_ids,
+    DROPOUT_SEED
 )
 
 
@@ -41,7 +42,7 @@ def create_model(num_classes, input_shape):
     top_model = Sequential()
     top_model.add(Flatten(input_shape=vgg16.output_shape[1:]))
     top_model.add(Dense(128, activation='relu'))
-    top_model.add(Dropout(DROPOUT))
+    top_model.add(Dropout(DROPOUT, seed=DROPOUT_SEED))
     top_model.add(Dense(num_classes, activation='softmax'))
 
     # create new model
