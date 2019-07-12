@@ -55,7 +55,6 @@ class DataGenerator(Sequence):
             dataset_item_id = self.dataset_item_ids[id_idx]
             if USE_ON_MEMORY:
                 img = dataset_item_id.data
-                img = preprocessor.transform(img, is_train=self.is_train, seed=RANDOM_SEED)
                 label_id = dataset_item_id.label_id
             else:
                 dataset_id = dataset_item_id.dataset_id
@@ -68,7 +67,7 @@ class DataGenerator(Sequence):
                 file_content = source_data.get_content(cache=USE_CACHE)
                 file_like_object = io.BytesIO(file_content)
                 img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
-                img = preprocessor.transform(img, is_train=self.is_train, seed=RANDOM_SEED)
+            img = preprocessor.transform(img, is_train=self.is_train, seed=RANDOM_SEED)
             imgs[i, :] = img
             labels[i] = self.id2index[label_id]
 
