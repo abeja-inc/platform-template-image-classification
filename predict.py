@@ -4,12 +4,13 @@ from keras.models import load_model
 import numpy as np
 from PIL import Image
 
-from preprocessor import preprocessor
+from preprocessor import PreProcessor
 from utils import set_categories, IMG_ROWS, IMG_COLS
 
 
 model = load_model(os.path.join(os.environ.get('ABEJA_TRAINING_RESULT_DIR', '.'), 'model.h5'))
 _, index2label = set_categories(os.environ.get('TRAINING_JOB_DATASET_IDS', '').split())
+preprocessor = PreProcessor()
 
 
 def decode_predictions(result):
@@ -22,7 +23,7 @@ def handler(_iter, ctx):
         img = Image.fromarray(img)
         img = img.resize((IMG_ROWS, IMG_COLS))
 
-        x = preprocessor(img)
+        x = preprocessor.transform(img)
         x = np.expand_dims(x, axis=0)
 
         result = model.predict(x)[0]
