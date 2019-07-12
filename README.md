@@ -19,7 +19,7 @@ This template uses transfer-learning from VGG16 ImageNet. Making it easy to try 
 | --- | --- | --- |
 | BATCH_SIZE | int | Batch size. Default `32`. |
 | EPOCHS | int | Epoch number. This template applies "Early stopping". Default `50`. |
-| LEARNING_RATE | float | Learning rate. Need to be from `0.0` to `1.0`. Default `0.001`. |
+| LEARNING_RATE | float | Learning rate. Need to be from `0.0` to `1.0`. Default `0.0001`. |
 | ADAM_BETA_1 | float | Adam parameter "beta_1". Need to be from `0.0` to `1.0`. Default `0.9`. |
 | ADAM_BETA_2 | float | Adam parameter "beta_2". Need to be from `0.0` to `1.0`. Default `0.999`. |
 | ADAM_EPSILON | float | Adam parameter "epsilon". Need to be from `0.0`. Default `None` = `K.epsilon()`. |
@@ -28,8 +28,8 @@ This template uses transfer-learning from VGG16 ImageNet. Making it easy to try 
 | DROPOUT_SEED | int | Random seed for Dropout. Default `42`. |
 | EARLY_STOPPING_TEST_SIZE | float | Test data size for "Early stopping". Need to be from `0.0` to `1.0`. Default `0.2`. |
 | EARLY_STOPPING_PATIENCE | int | Number of patience for "Early stopping". Default `5`. |
-| IMG_ROWS | int | Image rows. Automatically resize to this size. Default `128`. |
-| IMG_COLS | int | Image cols. Automatically resize to this size. Default `128`. |
+| IMG_ROWS | int | Image rows. Automatically resize to this size. Default `224`. |
+| IMG_COLS | int | Image cols. Automatically resize to this size. Default `224`. |
 | NB_CHANNELS | int | Image channels. If grayscale, then `1`. If color, then `3`. Default `3`. |
 | RANDOM_SEED | int | Random seed. Use it for a data shuffling. Default `42`. |
 | USE_ON_MEMORY | bool | Load data on memory. If you use a big dataset, set it to `false`. Default `true` |
