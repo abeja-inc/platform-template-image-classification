@@ -13,6 +13,7 @@ from keras import applications
 from keras.callbacks import TensorBoard, EarlyStopping
 from abeja.contrib.keras.callbacks import Statistics
 
+import utils
 from utils import (
     set_categories, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS, EARLY_STOPPING_PATIENCE,
     LEARNING_RATE, ADAM_BETA_1, ADAM_BETA_2, ADAM_EPSILON, ADAM_DECAY,
@@ -73,6 +74,7 @@ def handler(context):
     print('input shape:', input_shape)
     print(len(train_ids), 'train samples')
     print(len(test_ids), 'test samples')
+    print('parameters:', utils.parameters)
 
     model = create_model(num_classes, input_shape)
     tensorboard = TensorBoard(log_dir=log_path, histogram_freq=0,
@@ -86,8 +88,8 @@ def handler(context):
                   metrics=['accuracy'])
 
     # fit_generator
-    train_gen = DataGenerator(train_ids, id2index)
-    test_gen = DataGenerator(test_ids, id2index)
+    train_gen = DataGenerator(train_ids, id2index, is_train=True)
+    test_gen = DataGenerator(test_ids, id2index, is_train=False)
 
     # fit_generator
     model.fit_generator(train_gen,

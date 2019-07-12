@@ -7,13 +7,16 @@ from typing import Tuple, Dict, List
 from keras.preprocessing.image import load_img
 from abeja.datasets import Client
 
-from preprocessor import preprocessor
 from .parameters import (
+    parameters,
     BATCH_SIZE, EPOCHS, IMG_ROWS, IMG_COLS, NB_CHANNELS,
     LEARNING_RATE, ADAM_BETA_1, ADAM_BETA_2, ADAM_EPSILON, ADAM_DECAY,
     RANDOM_SEED, EARLY_STOPPING_TEST_SIZE, DROPOUT, USE_CACHE,
     USE_ON_MEMORY, NUM_DATA_LOAD_THREAD, EARLY_STOPPING_PATIENCE,
-    DROPOUT_SEED
+    DROPOUT_SEED, ROTATION_RANGE, WIDTH_SHIFT_RANGE, HEIGHT_SHIFT_RANGE,
+    BRIGHTNESS_RANGE, SHEAR_RANGE, ZOOM_RANGE, CHANNEL_SHIFT_RANGE,
+    FILL_MODE, CVAL, HORIZONTAL_FLIP, VERTICAL_FLIP, RESCALE,
+    DATA_FORMAT, DTYPE
 )
 from .dataset_item_id import DatasetItemId
 from .data_generator import DataGenerator
@@ -63,7 +66,6 @@ def get_dataset_item_ids(dataset_ids: List[str]) -> List[DatasetItemId]:
                 file_content = source_data.get_content(cache=USE_CACHE)
                 file_like_object = io.BytesIO(file_content)
                 img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
-                img = preprocessor(img)
                 dataset_item_id.data = img
                 label_id = item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
                 dataset_item_id.label_id = label_id

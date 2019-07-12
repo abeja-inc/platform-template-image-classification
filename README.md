@@ -35,6 +35,20 @@ This template uses transfer-learning from VGG16 ImageNet. Making it easy to try 
 | USE_ON_MEMORY | bool | Load data on memory. If you use a big dataset, set it to `false`. Default `true` |
 | USE_CACHE | bool | Image cache. If you use a big dataset, set it to `false`. If `USE_ON_MEMORY=true`, then `USE_CACHE=true` automatically. Default `true` |
 | NUM_DATA_LOAD_THREAD | int | Number of thread image loads. MUST NOT over `BATCH_SIZE`. Default `1` |
+| ROTATION_RANGE | int | Degree range for random rotations. Default `20` |
+| WIDTH_SHIFT_RANGE | float | Fraction of total width, if < 1, or pixels if >= 1. Default `0.05`. |
+| HEIGHT_SHIFT_RANGE | float | Fraction of total height, if < 1, or pixels if >= 1. Default `0.05`. |
+| BRIGHTNESS_RANGE | string | CSV format of two floats. Range for picking a brightness shift value from. Default `None`. |
+| SHEAR_RANGE | float | Shear Intensity. Default `0.`. |
+| ZOOM_RANGE | float | Range for random zoom. `[lower, upper] = [1-zoom_range, 1+zoom_range]`. Default `0.`. |
+| CHANNEL_SHIFT_RANGE | float | Range for random channel shifts. Default `0.`. |
+| FILL_MODE | string | Points outside the boundaries of the input are filled according to the given mode. One of {"constant", "nearest", "reflect" or "wrap"}. Default `nearest`. |
+| CVAL | float | Value used for points outside the boundaries when `fill_mode = "constant"`. Default `0.`. |
+| HORIZONTAL_FLIP | bool | Randomly flip inputs horizontally. Default `True`. |
+| VERTICAL_FLIP | bool | Randomly flip inputs vertically. Default `False`. |
+| RESCALE | float | Rescaling factor. If 0, no rescaling is applied. Default `0.`. |
+| DATA_FORMAT | string | Image data format, either "channels_first" or "channels_last". Default `channels_last`. |
+| DTYPE | string | Dtype to use for the generated arrays. Default `float32`. |
 
 
 ## Run on local
