@@ -58,6 +58,7 @@ def create_model(num_classes, input_shape):
 
 
 def handler(context):
+    print('Start train handler.')
     dataset_alias = context.datasets
     id2index, _ = set_categories(dataset_alias.values())
     num_classes = len(id2index)

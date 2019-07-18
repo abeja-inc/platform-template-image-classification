@@ -19,6 +19,7 @@ def decode_predictions(result):
 
 
 def handler(_iter, ctx):
+    print('Start predict handler.')
     for img in _iter:
         img = Image.fromarray(img)
         img = img.resize((IMG_ROWS, IMG_COLS))
