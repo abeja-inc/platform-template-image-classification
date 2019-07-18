@@ -69,7 +69,7 @@ class DataGenerator(Sequence):
                     file_like_object = io.BytesIO(file_content)
                     img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
                 except Exception as e:
-                    print('Error: Loading', dataset_item_id.item_id)
+                    print('Error: Loading dataset_item_id', dataset_item_id.item_id)
                     raise e
             img = preprocessor.transform(img, is_train=self.is_train, seed=RANDOM_SEED)
             imgs[i, :] = img

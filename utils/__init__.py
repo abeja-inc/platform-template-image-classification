@@ -71,7 +71,7 @@ def get_dataset_item_ids(dataset_ids: List[str]) -> List[DatasetItemId]:
                     label_id = item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
                     dataset_item_id.label_id = label_id
                 except Exception as e:
-                    print('Error: Loading', dataset_item_id.item_id)
+                    print('Error: Loading dataset_item_id', dataset_item_id.item_id)
                     raise e
         break  # FIXME: Allow multiple datasets.
     return dataset_item_ids
