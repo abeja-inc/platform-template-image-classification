@@ -57,16 +57,20 @@ class DataGenerator(Sequence):
                 img = dataset_item_id.data
                 label_id = dataset_item_id.label_id
             else:
-                dataset_id = dataset_item_id.dataset_id
-                item_id = dataset_item_id.item_id
-                if self.dataset.dataset_id != dataset_id:
-                    self.dataset = self.client.get_dataset(dataset_id)
-                dataset_item = self.dataset.dataset_items.get(item_id)
-                label_id = dataset_item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
-                source_data = dataset_item.source_data[0]
-                file_content = source_data.get_content(cache=USE_CACHE)
-                file_like_object = io.BytesIO(file_content)
-                img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
+                try:
+                    dataset_id = dataset_item_id.dataset_id
+                    item_id = dataset_item_id.item_id
+                    if self.dataset.dataset_id != dataset_id:
+                        self.dataset = self.client.get_dataset(dataset_id)
+                    dataset_item = self.dataset.dataset_items.get(item_id)
+                    label_id = dataset_item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
+                    source_data = dataset_item.source_data[0]
+                    file_content = source_data.get_content(cache=USE_CACHE)
+                    file_like_object = io.BytesIO(file_content)
+                    img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
+                except Exception as e:
+                    print('Error: Loading', dataset_item_id.item_id)
+                    raise e
             img = preprocessor.transform(img, is_train=self.is_train, seed=RANDOM_SEED)
             imgs[i, :] = img
             labels[i] = self.id2index[label_id]

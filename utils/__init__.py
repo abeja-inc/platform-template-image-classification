@@ -62,12 +62,16 @@ def get_dataset_item_ids(dataset_ids: List[str]) -> List[DatasetItemId]:
             dataset_item_id = DatasetItemId(dataset_id, item.dataset_item_id)
             dataset_item_ids.append(dataset_item_id)
             if USE_ON_MEMORY:
-                source_data = item.source_data[0]
-                file_content = source_data.get_content(cache=USE_CACHE)
-                file_like_object = io.BytesIO(file_content)
-                img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
-                dataset_item_id.data = img
-                label_id = item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
-                dataset_item_id.label_id = label_id
+                try:
+                    source_data = item.source_data[0]
+                    file_content = source_data.get_content(cache=USE_CACHE)
+                    file_like_object = io.BytesIO(file_content)
+                    img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
+                    dataset_item_id.data = img
+                    label_id = item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
+                    dataset_item_id.label_id = label_id
+                except Exception as e:
+                    print('Error: Loading', dataset_item_id.item_id)
+                    raise e
         break  # FIXME: Allow multiple datasets.
     return dataset_item_ids
