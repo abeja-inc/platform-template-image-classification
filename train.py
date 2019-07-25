@@ -59,7 +59,7 @@ def create_model(num_classes, input_shape):
 
 def handler(context):
     print('Start train handler.')
-    dataset_alias = context.datasets
+    dataset_alias = context['datasets']
     id2index, _ = set_categories(dataset_alias.values())
     num_classes = len(id2index)
     dataset_item_ids = get_dataset_item_ids(dataset_alias.values())
@@ -105,6 +105,6 @@ def handler(context):
 
 
 if __name__ == '__main__':
-    class DebugContext:
-        datasets = {"data": os.environ.get('DATASET_ID')}
-    handler(DebugContext())
+    context = dict()
+    context['datasets'] = {"data": os.environ.get('DATASET_ID')}
+    handler(context)
