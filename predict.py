@@ -1,4 +1,6 @@
+import http
 import os
+from io import BytesIO
 
 from keras.models import load_model
 import numpy as np
@@ -18,15 +20,23 @@ def decode_predictions(result):
     return sorted(result_with_labels, key=lambda x: x['probability'], reverse=True)
 
 
-def handler(_iter, ctx):
+def handler(request, context):
     print('Start predict handler.')
-    for img in _iter:
-        img = Image.fromarray(img)
-        img = img.resize((IMG_ROWS, IMG_COLS))
+    data = request.read()
+    img = BytesIO(data)
+    img = Image.open(img)
+    img = np.asarray(img)
+    img = Image.fromarray(img)
+    img = img.resize((IMG_ROWS, IMG_COLS))
 
-        x = preprocessor.transform(img)
-        x = np.expand_dims(x, axis=0)
+    x = preprocessor.transform(img)
+    x = np.expand_dims(x, axis=0)
 
-        result = model.predict(x)[0]
-        sorted_result = decode_predictions(result.tolist())
-        yield {"result": sorted_result}
+    result = model.predict(x)[0]
+    sorted_result = decode_predictions(result.tolist())
+
+    return {
+        'status_code': http.HTTPStatus.OK,
+        'content_type': 'application/json; charset=utf8',
+        'content': {'result': sorted_result}
+    }
