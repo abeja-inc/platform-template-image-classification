@@ -1,4 +1,7 @@
+import http
 import os
+import traceback
+from io import BytesIO
 
 from keras.models import load_model
 import numpy as np
@@ -18,9 +21,22 @@ def decode_predictions(result):
     return sorted(result_with_labels, key=lambda x: x['probability'], reverse=True)
 
 
-def handler(_iter, ctx):
+def handler(request, context):
     print('Start predict handler.')
-    for img in _iter:
+    if 'http_method' not in request:
+        message = 'Error: Support only "abeja/all-cpu:19.04" or "abeja/all-gpu:19.04".'
+        print(message)
+        return {
+            'status_code': http.HTTPStatus.BAD_REQUEST,
+            'content_type': 'application/json; charset=utf8',
+            'content': {'message': message}
+        }
+
+    try:
+        data = request.read()
+        img = BytesIO(data)
+        img = Image.open(img)
+        img = np.asarray(img)
         img = Image.fromarray(img)
         img = img.resize((IMG_ROWS, IMG_COLS))
 
@@ -29,4 +45,17 @@ def handler(_iter, ctx):
 
         result = model.predict(x)[0]
         sorted_result = decode_predictions(result.tolist())
-        yield {"result": sorted_result}
+
+        return {
+            'status_code': http.HTTPStatus.OK,
+            'content_type': 'application/json; charset=utf8',
+            'content': {'result': sorted_result}
+        }
+    except Exception as e:
+        print(str(e))
+        print(traceback.format_exc())
+        return {
+            'status_code': http.HTTPStatus.INTERNAL_SERVER_ERROR,
+            'content_type': 'application/json; charset=utf8',
+            'content': {'message': str(e)}
+        }

@@ -3,9 +3,24 @@ This is the template of image-classification task for ABEJA Platform.
 
 This template uses transfer-learning from VGG16 ImageNet. Making it easy to try building ML model, this template uses many hard-coding parameters. You can change the parameters by setting environmental variables or editing code directly.
 
+
+### Note
+If you want to use **GPU**, you need to edit "requirements.txt" like the below.
+
+```
+# tensorflow==1.13.1
+tensorflow-gpu==1.13.1
+```
+
+
 ## Requirements
 - Python 3.6.x
 - [For local] Install [abeja-sdk](https://developers.abeja.io/sdk/)
+
+
+## Docker
+- abeja/all-cpu:19.04
+- abeja/all-gpu:19.04
 
 
 ## Conditions
