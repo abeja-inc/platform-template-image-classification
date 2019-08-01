@@ -1,6 +1,5 @@
 import http
 import os
-import sys
 import traceback
 from io import BytesIO
 
@@ -24,10 +23,14 @@ def decode_predictions(result):
 
 def handler(request, context):
     print('Start predict handler.')
-    if hasattr(request, "__iter__"):
+    if 'http_method' not in request:
         message = 'Error: Support only "abeja/all-cpu:19.04" or "abeja/all-gpu:19.04".'
-        print(message, file=sys.stderr)
-        raise Exception(message)
+        print(message)
+        return {
+            'status_code': http.HTTPStatus.BAD_REQUEST,
+            'content_type': 'application/json; charset=utf8',
+            'content': {'message': message}
+        }
 
     try:
         data = request.read()
@@ -49,6 +52,10 @@ def handler(request, context):
             'content': {'result': sorted_result}
         }
     except Exception as e:
-        print(str(e), file=sys.stderr)
-        print(traceback.format_exc(), file=sys.stderr)
-        raise e
+        print(str(e))
+        print(traceback.format_exc())
+        return {
+            'status_code': http.HTTPStatus.INTERNAL_SERVER_ERROR,
+            'content_type': 'application/json; charset=utf8',
+            'content': {'message': str(e)}
+        }

@@ -4,7 +4,6 @@
 
 import os
 import random
-import sys
 import traceback
 
 import keras
@@ -63,7 +62,7 @@ def handler(context):
     print('Start train handler.')
     if not isinstance(context, dict):
         message = 'Error: Support only "abeja/all-cpu:19.04" or "abeja/all-gpu:19.04".'
-        print(message, file=sys.stderr)
+        print(message)
         raise Exception(message)
 
     try:
@@ -111,8 +110,8 @@ def handler(context):
         print('Test loss:', score[0])
         print('Test accuracy:', score[1])
     except Exception as e:
-        print(str(e), file=sys.stderr)
-        print(traceback.format_exc(), file=sys.stderr)
+        print(str(e))
+        print(traceback.format_exc())
         raise e
 
 
