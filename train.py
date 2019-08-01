@@ -4,6 +4,8 @@
 
 import os
 import random
+import sys
+import traceback
 
 import keras
 from keras.models import Sequential, Model
@@ -59,49 +61,59 @@ def create_model(num_classes, input_shape):
 
 def handler(context):
     print('Start train handler.')
-    dataset_alias = context['datasets']
-    id2index, _ = set_categories(dataset_alias.values())
-    num_classes = len(id2index)
-    dataset_item_ids = get_dataset_item_ids(dataset_alias.values())
-    random.shuffle(dataset_item_ids)
+    if not isinstance(context, dict):
+        message = 'Error: Support only "abeja/all-cpu:19.04" or "abeja/all-gpu:19.04".'
+        print(message, file=sys.stderr)
+        raise Exception(message)
 
-    test_size = int(len(dataset_item_ids) * EARLY_STOPPING_TEST_SIZE)
-    if test_size:
-        train_ids, test_ids = dataset_item_ids[test_size:], dataset_item_ids[:test_size]
-    else:
-        raise Exception("Dataset size is too small. Please add more dataset.")
-    input_shape = (IMG_ROWS, IMG_COLS, NB_CHANNELS)
-    print('num classes:', num_classes)
-    print('input shape:', input_shape)
-    print(len(train_ids), 'train samples')
-    print(len(test_ids), 'test samples')
-    print('parameters:', utils.parameters)
+    try:
+        dataset_alias = context['datasets']
+        id2index, _ = set_categories(dataset_alias.values())
+        num_classes = len(id2index)
+        dataset_item_ids = get_dataset_item_ids(dataset_alias.values())
+        random.shuffle(dataset_item_ids)
 
-    model = create_model(num_classes, input_shape)
-    tensorboard = TensorBoard(log_dir=log_path, histogram_freq=0,
-                              write_graph=True, write_images=False)
-    statistics = Statistics()
-    early = EarlyStopping(monitor='val_acc', min_delta=0, patience=EARLY_STOPPING_PATIENCE, verbose=1, mode='auto')
-    # Do you want to add `checkpoint` to callback as well?
-    model.compile(loss=keras.losses.categorical_crossentropy,
-                  optimizer=Adam(lr=LEARNING_RATE, beta_1=ADAM_BETA_1, beta_2=ADAM_BETA_2,
-                                 epsilon=ADAM_EPSILON, decay=ADAM_DECAY),
-                  metrics=['accuracy'])
+        test_size = int(len(dataset_item_ids) * EARLY_STOPPING_TEST_SIZE)
+        if test_size:
+            train_ids, test_ids = dataset_item_ids[test_size:], dataset_item_ids[:test_size]
+        else:
+            raise Exception("Dataset size is too small. Please add more dataset.")
+        input_shape = (IMG_ROWS, IMG_COLS, NB_CHANNELS)
+        print('num classes:', num_classes)
+        print('input shape:', input_shape)
+        print(len(train_ids), 'train samples')
+        print(len(test_ids), 'test samples')
+        print('parameters:', utils.parameters)
 
-    # fit_generator
-    train_gen = DataGenerator(train_ids, id2index, is_train=True)
-    test_gen = DataGenerator(test_ids, id2index, is_train=False)
+        model = create_model(num_classes, input_shape)
+        tensorboard = TensorBoard(log_dir=log_path, histogram_freq=0,
+                                  write_graph=True, write_images=False)
+        statistics = Statistics()
+        early = EarlyStopping(monitor='val_acc', min_delta=0, patience=EARLY_STOPPING_PATIENCE, verbose=1, mode='auto')
+        # Do you want to add `checkpoint` to callback as well?
+        model.compile(loss=keras.losses.categorical_crossentropy,
+                      optimizer=Adam(lr=LEARNING_RATE, beta_1=ADAM_BETA_1, beta_2=ADAM_BETA_2,
+                                     epsilon=ADAM_EPSILON, decay=ADAM_DECAY),
+                      metrics=['accuracy'])
 
-    # fit_generator
-    model.fit_generator(train_gen,
-                        epochs=EPOCHS,
-                        verbose=1,
-                        validation_data=test_gen,
-                        callbacks=[tensorboard, statistics, early])
-    score = model.evaluate_generator(test_gen)
-    model.save(os.path.join(ABEJA_TRAINING_RESULT_DIR, 'model.h5'))
-    print('Test loss:', score[0])
-    print('Test accuracy:', score[1])
+        # fit_generator
+        train_gen = DataGenerator(train_ids, id2index, is_train=True)
+        test_gen = DataGenerator(test_ids, id2index, is_train=False)
+
+        # fit_generator
+        model.fit_generator(train_gen,
+                            epochs=EPOCHS,
+                            verbose=1,
+                            validation_data=test_gen,
+                            callbacks=[tensorboard, statistics, early])
+        score = model.evaluate_generator(test_gen)
+        model.save(os.path.join(ABEJA_TRAINING_RESULT_DIR, 'model.h5'))
+        print('Test loss:', score[0])
+        print('Test accuracy:', score[1])
+    except Exception as e:
+        print(str(e), file=sys.stderr)
+        print(traceback.format_exc(), file=sys.stderr)
+        raise e
 
 
 if __name__ == '__main__':
