@@ -12,7 +12,7 @@ from utils import set_categories, IMG_ROWS, IMG_COLS
 
 
 model = load_model(os.path.join(os.environ.get('ABEJA_TRAINING_RESULT_DIR', '.'), 'model.h5'))
-_, index2label = set_categories(os.environ.get('TRAINING_JOB_DATASET_IDS', '').split())
+_, index2label = set_categories(os.environ.get('TRAINING_JOB_DATASET_IDS', '').split(','))
 preprocessor = PreProcessor()
 
 
