@@ -66,7 +66,7 @@ def get_dataset_item_ids(dataset_ids: List[str]) -> List[DatasetItemId]:
                     source_data = item.source_data[0]
                     file_content = source_data.get_content(cache=USE_CACHE)
                     file_like_object = io.BytesIO(file_content)
-                    img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
+                    img = load_img(file_like_object, color_mode='rgb', target_size=(IMG_ROWS, IMG_COLS))
                     dataset_item_id.data = img
                     label_id = item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
                     dataset_item_id.label_id = label_id

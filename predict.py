@@ -36,8 +36,7 @@ def handler(request, context):
         data = request.read()
         img = BytesIO(data)
         img = Image.open(img)
-        img = np.asarray(img)
-        img = Image.fromarray(img)
+        img = img.convert('RGB')
         img = img.resize((IMG_ROWS, IMG_COLS))
 
         x = preprocessor.transform(img)
