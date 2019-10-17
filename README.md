@@ -5,7 +5,7 @@ This template uses transfer-learning from VGG16 ImageNet. Making it easy to try 
 
 
 ### Note
-If you want to use **GPU**, you need to edit "requirements.txt" like the below.
+If you want to use **GPU**, you need to edit "requirements-local.txt" like the below.
 
 ```
 # tensorflow==1.13.1
@@ -67,6 +67,12 @@ tensorflow-gpu==1.13.1
 
 
 ## Run on local
+Use `requirements-local.txt`.
+
+```
+$ pip install -r requirements-local.txt
+```
+
 Set environment variables.
 
 | env | type | description |
