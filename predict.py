@@ -1,4 +1,6 @@
+import datetime
 import http
+import json
 import os
 import traceback
 from io import BytesIO
@@ -6,14 +8,20 @@ from io import BytesIO
 from keras.models import load_model
 import numpy as np
 from PIL import Image
+from sklearn.metrics import confusion_matrix
+from tensorboardX import SummaryWriter
 
+from abeja.datasets import Client
 from preprocessor import PreProcessor
 from utils import set_categories, IMG_ROWS, IMG_COLS
+from utils.image_utils import plot_confusion_matrix, plot_to_image
 
 
 model = load_model(os.path.join(os.environ.get('ABEJA_TRAINING_RESULT_DIR', '.'), 'model.h5'))
-_, index2label = set_categories(os.environ.get('TRAINING_JOB_DATASET_IDS', '').split(','))
+id2index, index2label = set_categories(os.environ.get('TRAINING_JOB_DATASET_IDS', '').split(','))
 preprocessor = PreProcessor()
+
+ABEJA_PREDICTION_RESULT_DIR = os.environ.get('ABEJA_PREDICTION_RESULT_DIR', '.')
 
 
 def decode_predictions(result):
@@ -58,3 +66,42 @@ def handler(request, context):
             'content_type': 'application/json; charset=utf8',
             'content': {'message': str(e)}
         }
+
+
+def evaluate(request, context):
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_path = os.path.join(ABEJA_PREDICTION_RESULT_DIR, 'logs', 'eval', current_time)
+    writer = SummaryWriter(log_dir=log_path)
+    eval_datasets = json.loads(os.environ.get('ABEJA_EVALUATION_DATASETS'))
+    client = Client()
+
+    for i, dataset_id in enumerate(eval_datasets.values()):
+        dataset = client.get_dataset(dataset_id)
+        golds = []
+        preds = []
+        for item in dataset.dataset_items.list():
+            label_id = item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
+            gold_idx = id2index[label_id]
+            golds.append(gold_idx)
+
+            source_data = item.source_data[0]
+            file_content = source_data.get_content()
+            img = BytesIO(file_content)
+            img = Image.open(img)
+            img = img.convert('RGB')
+            img = img.resize((IMG_ROWS, IMG_COLS))
+            x = preprocessor.transform(img)
+            x = np.expand_dims(x, axis=0)
+            result = model.predict(x)
+            pred = np.argmax(result, axis=1)
+            preds.extend(pred)
+            if len(preds) == 10:
+                break
+        cm = confusion_matrix(golds, preds)
+        figure = plot_confusion_matrix(cm, class_names=index2label.values())
+        #cm_image = np.fromstring(figure.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        #cm_image = cm_image.reshape(figure.canvas.get_width_height()[::-1] + (3,))
+        cm_image = plot_to_image(figure)
+        writer.add_image('Confusion Matrix', cm_image, i)
+
+evaluate(None, None)
