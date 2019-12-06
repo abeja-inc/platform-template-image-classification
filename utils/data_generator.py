@@ -4,13 +4,14 @@
 import io
 import threading
 import math
+import os
 from typing import Dict, List
 
 import numpy as np
 import keras
 from keras.preprocessing.image import load_img
 from keras.utils import Sequence
-from abeja.datasets import Client
+from abeja.datasets.api.client import APIClient
 
 from preprocessor import PreProcessor
 from .dataset_item_id import DatasetItemId
@@ -22,6 +23,7 @@ from .parameters import (
     DATA_FORMAT, DTYPE
 )
 
+ABEJA_ORGANIZATION_ID = os.environ.get('ABEJA_ORGANIZATION_ID')
 THREAD_INDICES = [int(i*BATCH_SIZE/NUM_DATA_LOAD_THREAD) for i in range(NUM_DATA_LOAD_THREAD)] + [BATCH_SIZE]
 preprocessor = PreProcessor(rotation_range=ROTATION_RANGE, width_shift_range=WIDTH_SHIFT_RANGE,
                             height_shift_range=HEIGHT_SHIFT_RANGE, brightness_range=BRIGHTNESS_RANGE,
@@ -38,10 +40,9 @@ class DataGenerator(Sequence):
     """
 
     def __init__(self, dataset_item_ids: List[DatasetItemId], id2index: Dict[str, int], is_train: bool = False):
-        self.client = Client()
+        self.client = APIClient()
         self.is_train = is_train
         self.dataset_item_ids = dataset_item_ids
-        self.dataset = self.client.get_dataset(self.dataset_item_ids[0].dataset_id)
         self.id2index = id2index
         self.num_classes = len(id2index)
 
@@ -60,11 +61,10 @@ class DataGenerator(Sequence):
                 try:
                     dataset_id = dataset_item_id.dataset_id
                     item_id = dataset_item_id.item_id
-                    if self.dataset.dataset_id != dataset_id:
-                        self.dataset = self.client.get_dataset(dataset_id)
-                    dataset_item = self.dataset.dataset_items.get(item_id)
-                    label_id = dataset_item.attributes['classification'][0]['label_id']  # FIXME: Allow category selection
-                    source_data = dataset_item.source_data[0]
+                    dataset_item = self.client.get_dataset_item(
+                        organization_id=ABEJA_ORGANIZATION_ID, dataset_id=dataset_id, dataset_item_id=item_id)
+                    label_id = dataset_item['attributes']['classification'][0]['label_id']  # FIXME: Allow category selection
+                    source_data = dataset_item['source_data'][0]
                     file_content = source_data.get_content(cache=USE_CACHE)
                     file_like_object = io.BytesIO(file_content)
                     img = load_img(file_like_object, target_size=(IMG_ROWS, IMG_COLS))
