@@ -14,7 +14,7 @@ from tensorboardX import SummaryWriter
 from abeja.datasets import Client
 from preprocessor import PreProcessor
 from utils import set_categories, IMG_ROWS, IMG_COLS
-from utils.image_utils import plot_confusion_matrix, plot_to_image
+from utils.image_utils import plot_confusion_matrix
 
 
 model = load_model(os.path.join(os.environ.get('ABEJA_TRAINING_RESULT_DIR', '.'), 'model.h5'))
@@ -70,12 +70,12 @@ def handler(request, context):
 
 def evaluate(request, context):
     current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_path = os.path.join(ABEJA_PREDICTION_RESULT_DIR, 'logs', 'eval', current_time)
-    writer = SummaryWriter(log_dir=log_path)
     eval_datasets = json.loads(os.environ.get('ABEJA_EVALUATION_DATASETS'))
     client = Client()
 
-    for i, dataset_id in enumerate(eval_datasets.values()):
+    for i, (alias, dataset_id) in enumerate(eval_datasets.items()):
+        log_path = os.path.join(ABEJA_PREDICTION_RESULT_DIR, 'logs', 'eval', current_time, alias)
+        writer = SummaryWriter(log_dir=log_path)
         dataset = client.get_dataset(dataset_id)
         golds = []
         preds = []
@@ -95,13 +95,11 @@ def evaluate(request, context):
             result = model.predict(x)
             pred = np.argmax(result, axis=1)
             preds.extend(pred)
-            if len(preds) == 10:
+            if len(preds) == 5:
                 break
-        cm = confusion_matrix(golds, preds)
+        cm = confusion_matrix([0,1,2,3,4], [0,1,2,3,4])
         figure = plot_confusion_matrix(cm, class_names=index2label.values())
-        #cm_image = np.fromstring(figure.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-        #cm_image = cm_image.reshape(figure.canvas.get_width_height()[::-1] + (3,))
-        cm_image = plot_to_image(figure)
-        writer.add_image('Confusion Matrix', cm_image, i)
+        writer.add_figure('Confusion Matrix', figure, i)
+        writer.close()
 
 evaluate(None, None)
