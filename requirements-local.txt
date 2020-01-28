@@ -1,4 +1,4 @@
 -r requirements.txt
 abeja-sdk==0.2.13
-tensorflow==1.13.1
+tensorflow==1.15.2
 # tensorflow-gpu==1.13.1
